@@ -4,7 +4,7 @@ import Col from 'react-bootstrap/Col';
 import VideoCard from './VideoCard';
 import { getAllVideos } from '../services/allAPI';
 
-function View() {
+function View({uploadVideoStatus}) {
   const [allVideo, setAllVideo] = useState([])
 
   const getAllVideoFromDB = async () => {
@@ -15,7 +15,7 @@ function View() {
   }
   useEffect(() => {
     getAllVideoFromDB();
-  }, [])
+  }, [uploadVideoStatus])
   return (
     <>
       <Row>{

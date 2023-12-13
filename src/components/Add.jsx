@@ -4,8 +4,10 @@ import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
 import { uploadAllVideo } from '../services/allAPI';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-function Add() {
+function Add({setUploadVideoStatus}) {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
@@ -17,24 +19,28 @@ function Add() {
     url: "",
     embededLink: ""
   });
-  const embededVideoLink = (e)=>{
-    const {value} = e.target;
+  const embededVideoLink = (e) => {
+    const { value } = e.target;
     const link = `https://www.youtube.com/embed/${value.slice(-11)}`
     console.log("Link for embedding video");
     console.log(link);
-    setVideo({...video,embededLink:link})
+    setVideo({ ...video, embededLink: link })
   }
   const handleUpload = async () => {
     const { id, caption, url, embededLink } = video;
     if (!id || !caption || !caption || !embededLink) {
-      alert("Please fill the form completely")
+      toast.warning("Please fill the form completely")
     }
     else {
       const response = await uploadAllVideo(video);
       console.log(response);
       if (response.status == 201) {
-        alert(`${response.data.caption} is successfully uploaded`)
+        toast.success(`${response.data.caption} is successfully uploaded`);
+        setUploadVideoStatus(response.data)
         handleClose();
+      }
+      else {
+        toast.error("Something went wrong")
       }
     }
   }
@@ -80,7 +86,7 @@ function Add() {
           <Button variant="primary" className='btn btn-warning' onClick={handleUpload}>Upload</Button>
         </Modal.Footer>
       </Modal>
-
+      <ToastContainer position='top-center' theme='colored' autoClose={2000}></ToastContainer>
     </>
   )
 }
