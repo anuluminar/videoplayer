@@ -1,5 +1,12 @@
 import { Link } from "react-router-dom";
+import { getHistory } from "../services/allAPI";
 function Watchhistory(){
+
+    const getAllHistory = async()=>{
+        const response= await getHistory();
+        console.log(response);
+    }
+    
     return(
        <>
        <div className="container mt-5 d-flex justify-content-between align-item-center mb-5">
