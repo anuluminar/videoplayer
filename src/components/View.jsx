@@ -6,6 +6,7 @@ import { getAllVideos } from '../services/allAPI';
 
 function View({uploadVideoStatus}) {
   const [allVideo, setAllVideo] = useState([])
+  const [deleteVideoStatus, setDeleteVideoStatus]= useState(false)
 
   const getAllVideoFromDB = async () => {
     const response = await getAllVideos();
@@ -15,14 +16,14 @@ function View({uploadVideoStatus}) {
   }
   useEffect(() => {
     getAllVideoFromDB();
-  }, [uploadVideoStatus])
+  }, [uploadVideoStatus,deleteVideoStatus])
   return (
     <>
       <Row>{
         allVideo.length > 0 ?
           allVideo.map((video) => (
             <Col sm={12} md={6} lg={4} xl={3}>
-              <VideoCard displayVideo = {video}/>
+              <VideoCard displayVideo = {video} setDeleteVideoStatus={setDeleteVideoStatus}/>
             </Col>
           ))
           :
