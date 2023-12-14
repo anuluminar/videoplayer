@@ -18,13 +18,16 @@ export const uploadAllVideo = async (reqBody)=>{
  }
 
  // add details to watch history
-
  export const addToHistory = async(videoDetails)=>{
     return await commonAPI('POST',`${serverURL}history`,videoDetails)
  }
 
  // get all details of whatch History
-
  export const getHistory = async()=>{
     return await commonAPI('GET',`${serverURL}history`,"")
  }
+
+ // to delete a specific history
+ export const deleteHistory=async(id)=>{
+   return await commonAPI('DELETE',`${serverURL}history/${id}`,{})
+}
