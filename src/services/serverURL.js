@@ -1,1 +1,1 @@
- export const serverURL = "https://my-media-player-back-end.onrender.com/";
+ export const serverURL = "https://my-json-server-c58k.onrender.com/";
