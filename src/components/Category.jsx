@@ -1,26 +1,116 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import Form from 'react-bootstrap/Form';
+import { addCategory, deleteCategory, getAllCategory, getVideoDetails, updateCategory } from '../services/allAPI';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import VideoCard from './VideoCard';
+import {Row, Col} from 'react-bootstrap'
 
 function Category() {
   const [show, setShow] = useState(false);
 
   const handleClose = () => setShow(false);
   const handleShow = () => setShow(true);
+  const [allCategory, setAllCategory] = useState([])
+
+  const [isDelete, setisDelete] = useState([])
+
   const [category, setCategory] = useState({
     id: "",
-    categoryName: ""
+    categoryName: "",
+    allVideos: []
   })
-  const uploadCategory = () => {
-    alert(JSON.stringify(category))
+
+  const getCaterogyFormDB = async () => {
+    const response = await getAllCategory();
+    const { data } = response;
+    setAllCategory(data)
+  }
+  useEffect(() => {
+    getCaterogyFormDB();
+  }, [isDelete])
+  const uploadCategory = async () => {
+    const { id, categoryName } = category;
+    if (!id || !categoryName) {
+      toast.warning("Please fill the form completely")
+    }
+    else {
+      const response = await addCategory(category);
+      console.log(response);
+      if (response.status == 201) {
+        toast.success(`${response.data.categoryName} is successfully uploaded`);
+        handleClose();
+        getCaterogyFormDB();
+      }
+      else {
+        toast.error("Something went wrong")
+      }
+    }
+  }
+
+  const deleteCategoryItem = async (id) => {
+    const response = await deleteCategory(id);
+    setisDelete(response)
+  }
+  const dragOver = (e) => {
+    // to prevent page refresh, by default onDragOver will do page refresh
+    e.preventDefault();
+    console.log("drag over====")
+  }
+  const videoDrop = async (e, id) => {
+    console.log(`video card need to be placed in card with id ${id}`)
+    const videoid = e.dataTransfer.getData('VideoId');
+    console.log(`video with id ${videoid} need to placed in category with id ${id}`)
+    const response = await getVideoDetails(videoid);
+    const { data } = response;
+    console.log("video details");
+    console.log(data);
+    const selectedCategory = allCategory?.find((item) => item.id == id);
+    console.log("selected category", selectedCategory)
+    selectedCategory.allVideos.push(data);
+    console.log("===selected category with dragged video details==");
+    console.log(selectedCategory);
+    await updateCategory(id, selectedCategory);
+    getCaterogyFormDB();
   }
   return (
     <>
       <div>
         <button className='btn btn-warning' onClick={handleShow}> Add New Category</button>
       </div>
+      {
+        allCategory.length > 0 ?
+          allCategory.map((item) => (
+            <div className='d-grid' style={{ width: "275px" }} droppable onDragOver={(e) => dragOver(e)}
+              onDrop={(e) => videoDrop(e, item.id)}
+            >
+              <div className='mt-3 border border-secondary rounded p-3'>
+                <div className='d-flex justify-content-between align-items-center'>
+                  <h6>{item.categoryName}</h6>
+                  <button className='btn btn-danger'><i class="fa-solid fa-trash" onClick={() => deleteCategoryItem(item.id)}></i></button>
+                </div>
+                <Row>
+                <Col sm={12}>
+                  {
+                    item.allVideos?.length > 0 ?
+                    item.allVideos.map(video=>(<VideoCard displayVideo={video}/>))
+                    :
+                    <p>No item </p>
+                  }
+
+
+                </Col>
+              </Row>
+              </div>
+            </div>
+          ))
+          :
+          <p>Nothing to display</p>
+      }
+
       <Modal
         show={show}
         onHide={handleClose}
